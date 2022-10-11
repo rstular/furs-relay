@@ -1,3 +1,5 @@
+from typing import List
+
 from app import certificates
 from app.database.models import UserRole
 from app.database.schemas import User
@@ -16,3 +18,15 @@ async def refresh_certificates(_: User = Depends(ActiveUserWithRole([UserRole.AD
     logger.info("Certificate reload requested")
     certificates.load()
     return ActionResponse(success=True)
+
+
+@router.get(
+    "/list", summary="Get a list of all loaded certificates", response_model=List[str]
+)
+async def get_certificates(
+    _: User = Depends(ActiveUserWithRole([UserRole.ADMIN])),
+):
+    company_taxid_list = []
+    for api_data in certificates.get_apis().values():
+        company_taxid_list.append(api_data.tax_id)
+    return company_taxid_list

@@ -7,6 +7,7 @@ from .routes import (
     DevicesRouter,
     InvoicesRouter,
     PremisesRouter,
+    UsersRouter,
 )
 from .util import certificates, furs
 from .util.logging import initialize as initialize_logging
@@ -19,6 +20,7 @@ app.include_router(CompaniesRouter)
 app.include_router(InvoicesRouter)
 app.include_router(DevicesRouter)
 app.include_router(PremisesRouter)
+app.include_router(UsersRouter)
 
 
 @app.on_event("startup")
