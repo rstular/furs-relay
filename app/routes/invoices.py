@@ -19,7 +19,8 @@ router = APIRouter(prefix="/invoices", tags=["invoices"])
 
 @dataclass
 class InvoiceResponse:
-    id: int
+    internal_id: int
+    invoice_number: str
     zoi: str
     eor: str
     issued_at: datetime
@@ -138,7 +139,11 @@ async def create_invoice(
     )
 
     return InvoiceResponse(
-        id=created_invoice.id, zoi=zoi, eor=eor, issued_at=invoice.issued_at
+        invoice_number=invoice_number,
+        internal_id=created_invoice.id,
+        zoi=zoi,
+        eor=eor,
+        issued_at=invoice.issued_at,
     )
 
 
