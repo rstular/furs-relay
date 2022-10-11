@@ -1,4 +1,5 @@
 from typing import List, Optional
+from app.database.crud import premises
 
 from app.database.models import Device
 from sqlalchemy import update
@@ -19,7 +20,13 @@ def get_by_id_with_premise(db: Session, device_id) -> Optional[Device]:
 
 
 def get_all_for_company(db: Session, company_id: int) -> List[Device]:
-    return db.query(Device).filter(Device.company_id == company_id).all()
+    company_premises = premises.get_all_for_company(db, company_id)
+    return (
+        db.query(Device)
+        .filter(Device.premise_id.in_([p.id for p in company_premises]))
+        .all()
+    )
+    # return db.query(Device).filter(Device.company_id == company_id).all()
 
 
 def get_all(db: Session) -> List[Device]:
