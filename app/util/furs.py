@@ -50,5 +50,24 @@ def register_movable_premise(premise: models.BusinessPremise):
         raise Exception("Failed to register premise")
 
 
-def register_immovable_premise(_premise: models.BusinessPremise):
-    raise NotImplementedError("Immovable premises are not implemented yet")
+def register_immovable_premise(premise: models.BusinessPremise):
+    company_api = get_api_for_company(premise.company_id)
+    if not company_api.premise_api.register_immovable_business_premise(
+        tax_number=company_api.tax_id,
+        premise_id=premise.furs_id,
+        real_estate_cadastral_number=premise.real_estate_cadastral_number,
+        real_estate_building_number=premise.real_estate_building_number,
+        real_estate_building_section_number=premise.real_estate_building_section_number,
+        street=premise.street,
+        house_number=premise.house_number,
+        house_number_additional=premise.house_number_additional,
+        community=premise.community,
+        city=premise.city,
+        postal_code=premise.postal_code,
+        validity_date=premise.validity_from,
+        software_supplier_tax_number=SOFTWARE_SUPPLIER_TAX_NUMBER,
+        foreign_software_supplier_name=None,
+        special_notes=premise.notes or "None",
+        close=False,
+    ):
+        raise Exception("Failed to register premise")
