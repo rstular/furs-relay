@@ -1,8 +1,9 @@
+import os
 from pathlib import Path
 
 from starlette.config import Config
 
-config = Config(".env")
+config = Config(os.getenv("CREDPATH") or ".env")
 
 DATABASE_URL = config("DATABASE_URL", cast=str)
 ACCESS_TOKEN_EXPIRE_MINUTES = config(
