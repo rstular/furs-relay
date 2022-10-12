@@ -100,7 +100,7 @@ async def create_invoice(
         seller_one.add_vat_amount(
             float(price.tax_rate),
             float(price.amount),
-            float(price.amount * price.tax_rate),
+            float(price.amount * (price.tax_rate / 100)),
         )
 
     invoice_number = generate_invoice_number(
