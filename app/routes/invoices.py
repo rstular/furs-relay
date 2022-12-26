@@ -38,6 +38,7 @@ class Invoice:
     operator_tax_id: int
     prices: List[PriceEntry]
     issued_at: Optional[datetime] = None
+    storno_invoice_id: Optional[int] = None
 
 
 @router.post(
@@ -65,12 +66,21 @@ async def create_invoice(
     # Verify that the company is active
     company = companies.get_by_id(db, user.company_id)
     if not company:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail="Company not found???")
     elif not company.is_active:
         raise HTTPException(status_code=403, detail="Company not active")
 
     seq_id = devices.get_inc_id(db, invoice.device_id)
     company_api: CompanyAPI = get_api_for_company(user.company_id)
+
+    is_storno = invoice.storno_invoice_id is not None
+    if is_storno:
+        storno_invoice = invoices.get_by_id(db, invoice.storno_invoice_id)
+        storno_device: models.Device = devices.get_by_id_with_premise(db, storno_invoice.device_id)
+        if not storno_device:
+            raise HTTPException(status_code=404, detail="Storno device not found")
+        if not storno_invoice:
+            raise HTTPException(status_code=404, detail="Storno invoice not found")
 
     subsequent_submit = not invoice.issued_at is None
     if invoice.issued_at is None:
@@ -119,6 +129,16 @@ async def create_invoice(
             taxes_per_seller=[seller_one],
             operator_tax_number=invoice.operator_tax_id,
             subsequent_submit=subsequent_submit,
+            reference_invoice_number=storno_invoice.invoice_number
+            if is_storno
+            else None,
+            reference_invoice_business_premise_id=storno_device.premise.furs_id
+            if is_storno
+            else None,
+            reference_invoice_electronic_device_id=storno_invoice.device_id
+            if is_storno
+            else None,
+            reference_invoice_issued_date=storno_invoice.issued_at if is_storno else None,
         )
     except Exception as e:
         logger.warning("Failed to get EOR for invoice", exc_info=e)
